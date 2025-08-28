@@ -9,14 +9,14 @@ ConfigBcso.themes = "default"
 
 
 -- 📌 Webhook Discord
-ConfigBcso.WebhookURL = "https://discord.com/api/webhooks/1341532384511918091/nSdgOq9HzY5-QH57PlQttka1JAe99a4hfVPdYZOWjpiMBckJ7LAthtX4wgQ0kDuZWd9c"
+ConfigBcso.WebhookURL = ""
 
 -- 📌 Nom affiché dans Discord
 ConfigBcso.WebhookName = "📅 RDV bcso"
 
 -- 📌 Poste de bcso (interaction)
 -- config.lua
-ConfigBcso.BcsoStation = vec3(1854.184570, 3688.259278, 34.250610)
+ConfigBcso.BcsoStation = vec3(-447.639556, 6013.648438, 31.706176)
 -- (vector3(...) marche aussi)
 
 
@@ -25,7 +25,7 @@ ConfigBcso.BcsoStations = {
 	bcso = {
 
 		Blip = {
-			Coords  = vec3(1854.184570, 3688.259278, 34.250610),
+			Coords  = vec3(-447.639556, 6013.648438, 31.706176),
 			Sprite  = 60,
 			Display = 4,
 			Scale   = 0.5,
@@ -253,7 +253,7 @@ ConfigBcso.RemoveItemEvent = 'RemoveItem' -- L'événement pour retirer les arme
 ConfigBcso.JobRequired = 'bcso'  -- Par exemple, seulement les policiers peuvent accéder
 -- Zone de l'armurerie (coordonnées et autres paramètres)
 ConfigBcso.Armurerie = {
-    coords = vector3(1844.822388,3692.098145,34.433277),  -- Exemple de coordonnées pour l'armurerie
+    coords = vector3(-436.974335,5988.625488,31.889095),  -- Exemple de coordonnées pour l'armurerie
     size = vector3(1, 1, 2),
     rotation = 0,
     Armory = {
@@ -270,7 +270,7 @@ ConfigBcso.JobRequired = 'bcso' -- pour rester cohérent dans tout le script
 
 ConfigBcso.Boss = {
     BcsoBoss = {
-        coords = vector3(1862.048950, 3689.391113, 34.148151),
+        coords = vector3(-433.143097,6003.796875,31.662149),
         size   = vector3(2.0, 2.0, 2.0),
 
         -- 🔐 Accès ox_target: job + grade mini
@@ -308,7 +308,7 @@ ConfigBcso.Stashes = {
 -- === Zones d’interaction ===
 ConfigBcso.Coffre = {
     BcsoCoffre = {
-        coords      = vec3(1841.000122,3690.324951,34.525711),
+        coords      = vec3(-438.081451,6011.793457,31.529881),
         size        = vec3(1, 1, 1),
         rotation    = 0.0,
         label       = "Ouvrir le coffre (Principal)",
@@ -321,7 +321,7 @@ ConfigBcso.Coffre = {
 
 ConfigBcso.Saisies = {
     BcsoSaisies = {
-        coords      = vec3(1848.948120,3687.379883,34.225471),
+        coords      = vec3(-442.492615,5986.956055,31.500053),
         size        = vec3(1, 1, 1),
         rotation    = 0.0,
         label       = "Ouvrir le coffre de Saisies",
@@ -344,10 +344,10 @@ ConfigBcso.Evidence = {
     minGrade  = 0,            -- grade minimum (0 = tous les policiers)
     slots     = 80,
     weight    = 60000,
-    webhook   = "https://discord.com/api/webhooks/1341532384511918091/nSdgOq9HzY5-QH57PlQttka1JAe99a4hfVPdYZOWjpiMBckJ7LAthtX4wgQ0kDuZWd9c",           -- URL Discord (optionnel). Laisse vide pour désactiver
+    webhook   = "",           -- URL Discord (optionnel). Laisse vide pour désactiver
     persistFile = "evidence.json",  -- nom du fichier persistant dans la ressource
     zone = {                  -- Une zone unique “Salle des preuves”
-        coords   = vec3(1847.066895,3679.818115,34.380428),
+        coords   = vec3(-440.328217,5996.301758,32.368587),
         size     = vec3(1,1,1),
         rotation = 0.0,
         distance = 2.0,
@@ -359,7 +359,7 @@ ConfigBcso.Evidence = {
 
 -- Tenues disponibles dans le vestiaire
 --Vestiaire 
-ConfigBcso.VestiaireCoords = vector3(1849.310181,3697.157715,34.991562) -- Coordonnées du vestiaire
+ConfigBcso.VestiaireCoords = vector3(-436.974335,5988.625488,31.889095) -- Coordonnées du vestiaire
 ConfigBcso.JobRequired = "bcso"  -- Job requis pour accéder au vestiaire
 BcsoCloak = {
     clothes = {
@@ -587,13 +587,13 @@ BcsoCloak = {
 --############################
 ConfigBcso.posbcso = {
     spawnBcsoVehicle = {
-        position =  vector4(1864.101074, 3681.072510, 33.273316, 206.929122)  -- Position de spawn du véhicule avec heading
+        position =  vector4(-466.945068, 6015.283692, 30.947998, 317.480316)  -- Position de spawn du véhicule avec heading
     }
 }
 
 ConfigBcso.GarageBCSO = {
     BcsoGarage = {
-        coords = vector3(1853.029663,3678.063721,34.143135), -- Coordonnées du garage
+        coords = vector3(-458.055908,6011.852051,31.869719), -- Coordonnées du garage
         size = vector3(3.0, 3.0, 3.0),
         garageMenuBCSO = {
             name = "bcso_garage",
@@ -605,7 +605,7 @@ ConfigBcso.GarageBCSO = {
 }
 ConfigBcso.Ranger = {
     BcsoRanger = {
-        coords = vector3( 1850.294556, 3673.951660, 33.357544),  -- Exemple de coordonnées du garage
+        coords = vector3(-462.369232, 6009.758300, 30.947998),  -- Exemple de coordonnées du garage
         size = vector3(3.0, 3.0, 3.0),  -- Taille de la zone d'interaction
         distance = 5.0,  -- Distance à partir de laquelle le joueur peut interagir
         key = 38,  -- Touche E pour ranger (38 correspond à la touche E)
@@ -623,46 +623,6 @@ ConfigBcso.AuthorizedBcsoVehicles = {
         label = "Declasse Sheriff SUV",
         model = "sheriff2",
         image = "https://wiki.rage.mp/images/thumb/c/c4/Sheriff2.png/164px-Sheriff2.png"
-    },
-    {
-        label = "Bravado BCSO Buffalo",
-        model = "bcso3",
-        image = "https://wiki.rage.mp/images/thumb/d/d5/Bcso3.png/164px-Bcso3.png"
-    },
-    {
-        label = "Vapid BCSO Stanier (Highway)",
-        model = "bcso4",
-        image = "https://wiki.rage.mp/images/thumb/4/4d/Bcso4.png/164px-Bcso4.png"
-    },
-    {
-        label = "BCSO Transport Van",
-        model = "bcsot",
-        image = "https://wiki.rage.mp/images/thumb/5/57/Bcsot.png/164px-Bcsot.png"
-    },
-    {
-        label = "Unmarked Cruiser",
-        model = "fbi",
-        image = "https://wiki.rage.mp/images/thumb/4/41/Fbi.png/164px-Fbi.png"
-    },
-    {
-        label = "Unmarked SUV",
-        model = "fbi2",
-        image = "https://wiki.rage.mp/images/thumb/6/69/Fbi2.png/164px-Fbi2.png"
-    },
-    {
-        label = "BCSO Riot",
-        model = "riot",
-        image = "https://wiki.rage.mp/images/thumb/3/33/Riot.png/164px-Riot.png"
-    },
-    {
-        label = "BCSO Motorcycle",
-        model = "bcsob",
-        image = "https://wiki.rage.mp/images/thumb/2/2f/Bcsob.png/164px-Bcsob.png"
-    },
-    {
-        label = "BCSO Predator (Bateau)",
-        model = "predator",
-        image = "https://wiki.rage.mp/images/thumb/3/38/Predator.png/164px-Predator.png"
     }
 }
 
@@ -671,16 +631,16 @@ ConfigBcso.AuthorizedBcsoVehicles = {
 --########### ped #########
 --############################
 ConfigBcso.NPCs = {
+    -- {
+    --     model = "mp_s_m_armoured_01",
+    --     coords =  vector4(1844.610962, 3691.964844, 34.250610, 300.472442),
+    --     freeze = true,
+    --     invincible = true,
+    --     text = "👋 Ouvrir l\'Armurerie"
+    -- },
     {
-        model = "s_m_y_cop_01",
-        coords =  vector4(1844.610962, 3691.964844, 34.250610, 300.472442),
-        freeze = true,
-        invincible = true,
-        text = "👋 Ouvrir l\'Armurerie"
-    },
-    {
-        model = "s_m_y_cop_01",
-        coords =  vector4(1852.931884, 3678.224122, 33.812500, 215.433074),
+        model = "mp_s_m_armoured_01",
+        coords =  vector4(-457.819764, 6011.934082, 31.487182, 130.393708),
         freeze = true,
         invincible = true,
         text = "👋 Ouvrir le Garage bcso"
