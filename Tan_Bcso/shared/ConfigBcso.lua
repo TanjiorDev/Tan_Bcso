@@ -266,17 +266,23 @@ ConfigBcso.Armurerie = {
 --############################
 --########### Boss ##########
 --############################
+ConfigBcso.JobRequired = 'bcso' -- pour rester cohérent dans tout le script
+
 ConfigBcso.Boss = {
     BcsoBoss = {
-        coords = vector3(1862.048950,3689.391113,34.148151),
-        size = vector3(2.0, 2.0, 2.0),
-        society = 'bcso',
+        coords = vector3(1862.048950, 3689.391113, 34.148151),
+        size   = vector3(2.0, 2.0, 2.0),
+
+        -- 🔐 Accès ox_target: job + grade mini
+        -- (ox_target check natif; tu peux garder ton canInteract en plus)
+        society = { ['bcso'] = 4 },  -- <= important: mapping job -> grade min
+
         bossMenu = {
-            name = "open_bossmenu",
-            icon = 'fa-solid fa-building',
-            label = "Menu patron bcso",
-            requiredGrade = 4,  -- Grade minimum requis pour interagir
-            distance = 2.5
+            name          = "open_bossmenu",
+            icon          = 'fa-solid fa-building',
+            label         = "Menu patron bcso",
+            requiredGrade = 4,        -- garde la même valeur que ci-dessus
+            distance      = 2.5
         }
     }
 }

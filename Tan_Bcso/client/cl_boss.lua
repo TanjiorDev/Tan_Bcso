@@ -11,43 +11,58 @@ RegisterNetEvent("esx:setJob", function(job)
     ESX.PlayerData.job = job
 end)
 
-local bossMenu       = zUI.CreateMenu("MENU BCSO","INTERACTIONS", "Intéractions BCSO :", ConfigBcso.themes)
-local employeesMenu  = zUI.CreateSubMenu(bossMenu,"MENU BCSO","INTERACTIONS", "Intéractions BCSO :", ConfigBcso.themes)
-local listMenu       = zUI.CreateSubMenu(employeesMenu,"MENU BCSO","INTERACTIONS", "Intéractions BCSO :", ConfigBcso.themes)
+local bossMenubcso   = zUI.CreateMenu("MENU bcso","INTERACTIONS", "Intéractions bcso :", ConfigBcso.themes)
+local employeesMenu  = zUI.CreateSubMenu(bossMenubcso,"MENU bcso","INTERACTIONS", "Intéractions bcso :", ConfigBcso.themes)
+local listMenu       = zUI.CreateSubMenu(employeesMenu,"MENU bcso","INTERACTIONS", "Intéractions bcso :", ConfigBcso.themes)
 
 local societybcso  = "Chargement..."
 local bcsoEmployees = {}
 
+-- 🔔 Reçoit le nouveau solde et met à jour l’affichage
+-- garde cet event pour rafraîchir le texte en live après dépôt/retrait
+AddEventHandler('bcso:societyUpdated', function(newMoney)
+    local m = tonumber(newMoney or 0) or 0
+    societybcso = ESX.Math.GroupDigits(m)
+
+    if zUI.IsVisible(bossMenubcso) then
+        -- si zUI a une API de refresh, utilise-la; sinon petit toggle
+        zUI.SetVisible(bossMenubcso, false)
+        Wait(0)
+        zUI.SetVisible(bossMenubcso, true)
+    end
+end)
+
+
 -- === MENUS ===
-zUI.SetItems(bossMenu, function()
+zUI.SetItems(bossMenubcso, function()
     zUI.Separator("Gestion de l'entreprise")
     zUI.Separator(("Coffre : %s $"):format(societybcso or "Chargement..."))
 
     -- Retrait
     zUI.Button("Retirer de l'argent", nil, {}, function(onSelected)
         if not onSelected then return end
-            local playerPed = PlayerPedId()
+        local playerPed = PlayerPedId()
 
-            -- ❄️ Geler le joueur
-            FreezeEntityPosition(playerPed, true)
-            SetEntityInvincible(playerPed, true)
-
-            -- ✅ Bloquer seulement les mouvements (conserve la caméra + ox_target)
-            SetPlayerControl(PlayerId(), false, 2) -- 2 = désactive déplacement/sprint/saut, pas la caméra
+        -- ❄️ Geler le joueur
+        FreezeEntityPosition(playerPed, true)
+        SetEntityInvincible(playerPed, true)
+        SetPlayerControl(PlayerId(), false, 2) -- désactive mouvements uniquement
 
         local input = lib.inputDialog('💵 Retrait Société', {
             { type = 'number', label = 'Montant à retirer', description = 'Indiquez le montant à retirer', icon = 'fa-solid fa-money-bill', required = true, min = 1 }
         })
+
         -- 🔓 Défreeze proprement
-            FreezeEntityPosition(playerPed, false)
-            SetEntityInvincible(playerPed, false)
-            SetPlayerControl(PlayerId(), true, 0)
+        FreezeEntityPosition(playerPed, false)
+        SetEntityInvincible(playerPed, false)
+        SetPlayerControl(PlayerId(), true, 0)
+
         local montant = input and tonumber(input[1] or 0)
         if montant and montant > 0 then
             TriggerServerEvent("bcso:withdrawMoney", ESX.PlayerData.job.name, montant)
             ESX.ShowNotification(("Vous avez retiré : %s$"):format(montant))
-            Wait(300)
-            RefreshMoney()
+            -- Fallback si jamais le push n'arrive pas (rare) :
+            SetTimeout(400, RefreshMoney)
         else
             ESX.ShowNotification("Montant invalide.")
         end
@@ -56,28 +71,28 @@ zUI.SetItems(bossMenu, function()
     -- Dépôt
     zUI.Button("Déposer de l'argent", nil, {}, function(onSelected)
         if not onSelected then return end
-            local playerPed = PlayerPedId()
+        local playerPed = PlayerPedId()
 
-            -- ❄️ Geler le joueur
-            FreezeEntityPosition(playerPed, true)
-            SetEntityInvincible(playerPed, true)
-
-            -- ✅ Bloquer seulement les mouvements (conserve la caméra + ox_target)
-            SetPlayerControl(PlayerId(), false, 2) -- 2 = désactive déplacement/sprint/saut, pas la caméra
+        -- ❄️ Geler le joueur
+        FreezeEntityPosition(playerPed, true)
+        SetEntityInvincible(playerPed, true)
+        SetPlayerControl(PlayerId(), false, 2)
 
         local input = lib.inputDialog('💵 Dépôt Société', {
             { type = 'number', label = 'Montant à déposer', description = 'Indiquez le montant à déposer', icon = 'fa-solid fa-money-bill', required = true, min = 1 }
         })
-         -- 🔓 Défreeze proprement
-            FreezeEntityPosition(playerPed, false)
-            SetEntityInvincible(playerPed, false)
-            SetPlayerControl(PlayerId(), true, 0)
+
+        -- 🔓 Défreeze proprement
+        FreezeEntityPosition(playerPed, false)
+        SetEntityInvincible(playerPed, false)
+        SetPlayerControl(PlayerId(), true, 0)
+
         local montant = input and tonumber(input[1] or 0)
         if montant and montant > 0 then
             TriggerServerEvent("bcso:depositMoney", ESX.PlayerData.job.name, montant)
             ESX.ShowNotification(("Vous avez déposé : %s$"):format(montant))
-            Wait(300)
-            RefreshMoney()
+            -- Fallback si jamais le push n'arrive pas (rare) :
+            SetTimeout(400, RefreshMoney)
         else
             ESX.ShowNotification("Montant invalide.")
         end
@@ -94,10 +109,9 @@ zUI.SetItems(employeesMenu, function()
             ESX.ShowNotification("Aucun joueur proche")
             return
         end
-        TriggerServerEvent("tanjiro:Recruter", GetPlayerServerId(closestPlayer))
+        TriggerServerEvent("bcso:Recruter", GetPlayerServerId(closestPlayer))
         ESX.ShowNotification("Joueur recruté")
-        Wait(300)
-        GetBcsoEmployees()
+        SetTimeout(300, GetBcsoEmployees)
     end)
 
     zUI.Button("Promouvoir (Chef d'équipe)", nil, {}, function(onSelected)
@@ -107,10 +121,9 @@ zUI.SetItems(employeesMenu, function()
             ESX.ShowNotification("Aucun joueur proche")
             return
         end
-        TriggerServerEvent("tanjiro:chiefpoli", GetPlayerServerId(closestPlayer))
+        TriggerServerEvent("bcso:chiefpoli", GetPlayerServerId(closestPlayer))
         ESX.ShowNotification("Joueur promu")
-        Wait(300)
-        GetBcsoEmployees()
+        SetTimeout(300, GetBcsoEmployees)
     end)
 
     zUI.Button("Virer un employé", nil, {}, function(onSelected)
@@ -120,16 +133,15 @@ zUI.SetItems(employeesMenu, function()
             ESX.ShowNotification("Aucun joueur proche")
             return
         end
-        TriggerServerEvent("tanjiro:virerpoli", GetPlayerServerId(closestPlayer))
+        TriggerServerEvent("bcso:virerpoli", GetPlayerServerId(closestPlayer))
         ESX.ShowNotification("Joueur viré")
-        Wait(300)
-        GetBcsoEmployees()
+        SetTimeout(300, GetBcsoEmployees)
     end)
 
     zUI.Button("Liste des employés", nil, {}, function() end, listMenu)
 end)
 
--- ⚠️ Ici on boucle correctement sur bcsoEmployees
+-- ⚠️ Boucle propre sur bcsoEmployees
 zUI.SetItems(listMenu, function()
     if type(bcsoEmployees) ~= 'table' or #bcsoEmployees == 0 then
         zUI.Separator("Chargement/Liste vide…")
@@ -153,11 +165,18 @@ end)
 
 -- === FONCTIONS ===
 function RefreshMoney()
-    if ESX.PlayerData and ESX.PlayerData.job and ESX.PlayerData.job.name == "bcso" and ESX.PlayerData.job.grade_name == "boss" then
+    local data = ESX.PlayerData or ESX.GetPlayerData()
+    if data and data.job and data.job.name == "bcso" and (data.job.grade_name == "boss" or (data.job.grade or 0) >= (ConfigBcso.Boss.BcsoBoss.bossMenu.requiredGrade or 0)) then
         ESX.TriggerServerCallback("bcso:getSocietyMoney", function(money)
-            -- money peut être nil si la société n’existe pas encore côté serveur
             local m = tonumber(money or 0) or 0
             societybcso = ESX.Math.GroupDigits(m)
+
+            -- Forcer un refresh visuel si le menu est ouvert
+            if zUI.IsVisible(bossMenubcso) then
+                zUI.SetVisible(bossMenubcso, false)
+                Wait(0)
+                zUI.SetVisible(bossMenubcso, true)
+            end
         end, "bcso")
     else
         societybcso = "Accès refusé"
@@ -175,29 +194,55 @@ exports.ox_target:addBoxZone({
     coords = ConfigBcso.Boss.BcsoBoss.coords,
     size = ConfigBcso.Boss.BcsoBoss.size,
     drawSprite = true,
+
+    -- ✅ laisse ox_target filtrer job/grade avec le mapping ci-dessus
     groups = ConfigBcso.Boss.BcsoBoss.society,
+
     options = {
         {
             name = ConfigBcso.Boss.BcsoBoss.bossMenu.name,
             icon = ConfigBcso.Boss.BcsoBoss.bossMenu.icon,
             label = ConfigBcso.Boss.BcsoBoss.bossMenu.label,
             distance = ConfigBcso.Boss.BcsoBoss.bossMenu.distance,
+
+            -- (optionnel) double sécurité côté client
             canInteract = function()
-                local data = ESX.PlayerData or ESX.GetPlayerData()
-                if not data or not data.job then return false end
-                local okJob = (data.job.name == (ConfigBcso.JobRequired or "bcso"))
-                local okGrade = (data.job.grade or 0) >= (ConfigBcso.Boss.BcsoBoss.bossMenu.requiredGrade or 0)
-                return okJob and okGrade
+                local d = ESX.PlayerData or ESX.GetPlayerData()
+                if not d or not d.job then return false end
+                if d.job.name ~= (ConfigBcso.JobRequired or 'bcso') then return false end
+                return (d.job.grade or 0) >= (ConfigBcso.Boss.BcsoBoss.bossMenu.requiredGrade or 0)
             end,
+
             onSelect = function()
-                bossbcso()
+                bossbcso()  -- (dans bossbcso, tu récupères le solde avant d’ouvrir)
             end
         }
     }
 })
 
+
+-- remplace ta fonction bossbcso() par ceci :
 function bossbcso()
-    RefreshMoney()
-    GetBcsoEmployees()
-    zUI.SetVisible(bossMenu, not zUI.IsVisible(bossMenu))
+    -- Récupère le solde avant d'ouvrir le menu
+    ESX.TriggerServerCallback("bcso:getSocietyMoney", function(money)
+        local m = tonumber(money or 0) or 0
+        societybcso = ESX.Math.GroupDigits(m)
+
+        -- charge aussi la liste employés (asynchrone) puis ouvre
+        GetBcsoEmployees()
+        zUI.SetVisible(bossMenubcso, true)
+    end, "bcso")
 end
+
+
+-- (Optionnel) Poll léger pendant l’ouverture du menu
+CreateThread(function()
+    while true do
+        if zUI.IsVisible(bossMenubcso) then
+            RefreshMoney()
+            Wait(1500)
+        else
+            Wait(600)
+        end
+    end
+end)

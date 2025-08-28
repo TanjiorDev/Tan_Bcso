@@ -410,6 +410,7 @@ end)
 
 -- Boss
 
+-- Boss - retrait
 RegisterServerEvent('bcso:withdrawMoney')
 AddEventHandler('bcso:withdrawMoney', function(societybcso, amount)
     local xPlayer = ESX.GetPlayerFromId(source)
@@ -417,10 +418,18 @@ AddEventHandler('bcso:withdrawMoney', function(societybcso, amount)
 
     TriggerEvent('esx_addonaccount:getSharedAccount', 'society_' .. societybcso, function(account)
         if account then
-            if account.money >= tonumber(amount) then
+            amount = tonumber(amount) or 0
+            if amount <= 0 then
+                return TriggerClientEvent("esx:showNotification", src, "Montant invalide.")
+            end
+
+            if account.money >= amount then
                 account.removeMoney(amount)
                 xPlayer.addMoney(amount)
-                TriggerClientEvent("esx:showNotification", src, "- Retiré\n- Somme : " .. amount .. "$")
+                TriggerClientEvent("esx:showNotification", src, ("- Retiré\n- Somme : %s$"):format(amount))
+
+                -- 🔔 PUSH solde actualisé
+                TriggerClientEvent('bcso:societyUpdated', src, account.money)
             else
                 TriggerClientEvent("esx:showNotification", src, "- Pas assez d'argent dans la société.")
             end
@@ -430,18 +439,27 @@ AddEventHandler('bcso:withdrawMoney', function(societybcso, amount)
     end)
 end)
 
+-- Boss - dépôt
 RegisterServerEvent('bcso:depositMoney')
 AddEventHandler('bcso:depositMoney', function(societybcso, amount)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local money = xPlayer.getMoney()
     local src = source
 
     TriggerEvent('esx_addonaccount:getSharedAccount', 'society_' .. societybcso, function(account)
         if account then
-            if money >= tonumber(amount) then
+            amount = tonumber(amount) or 0
+            if amount <= 0 then
+                return TriggerClientEvent("esx:showNotification", src, "Montant invalide.")
+            end
+
+            local money = xPlayer.getMoney()
+            if money >= amount then
                 xPlayer.removeMoney(amount)
                 account.addMoney(amount)
-                TriggerClientEvent("esx:showNotification", src, "- Déposé\n- Somme : " .. amount .. "$")
+                TriggerClientEvent("esx:showNotification", src, ("- Déposé\n- Somme : %s$"):format(amount))
+
+                -- 🔔 PUSH solde actualisé
+                TriggerClientEvent('bcso:societyUpdated', src, account.money)
             else
                 TriggerClientEvent("esx:showNotification", src, "- Pas assez d'argent sur vous.")
             end
@@ -451,16 +469,54 @@ AddEventHandler('bcso:depositMoney', function(societybcso, amount)
     end)
 end)
 
+-- ✅ FIX callback argent société
 ESX.RegisterServerCallback('bcso:getSocietyMoney', function(source, cb, societybcso)
     TriggerEvent('esx_addonaccount:getSharedAccount', 'society_' .. societybcso, function(account)
         if account then
-            cb(account.money)
+            cb(account.money or 0)
         else
-            cb(money)
+            cb(0)
         end
     end)
 end)
 
+
+-- SV/API : appliquer une amende et créditer la société bcso
+RegisterNetEvent('bcso:SendFacture', function(target, price)
+    local src = source
+    local officer = ESX.GetPlayerFromId(src)
+
+    -- ✅ Sécurité : seul le job bcso peut facturer
+    if not officer or not officer.job or officer.job.name ~= 'bcso' then
+        TriggerEvent("AC:Violations", 24, ("Event: bcso:SendFacture job: %s"):format(officer and officer.job and officer.job.name or 'nil'), src)
+        return
+    end
+
+    price = tonumber(price) or 0
+    if price <= 0 then
+        return TriggerClientEvent("esx:showNotification", src, "Montant invalide.")
+    end
+
+    local targetX = ESX.GetPlayerFromId(tonumber(target) or -1)
+    if not targetX then
+        return TriggerClientEvent("esx:showNotification", src, "Cible introuvable / déconnectée.")
+    end
+
+    TriggerEvent('esx_addonaccount:getSharedAccount', 'society_bcso', function(account)
+        if not account then
+            return TriggerClientEvent("esx:showNotification", src, "Compte société introuvable (society_bcso).")
+        end
+
+        targetX.removeAccountMoney('money', price) -- adapte si tu utilises 'bank' au lieu de 'money'
+        account.addMoney(price)
+
+        TriggerClientEvent("esx:showNotification", targetX.source, ("Votre compte a été débité de ~r~%s$~s~."):format(price))
+        TriggerClientEvent("esx:showNotification", src, ("Amende de ~r~%s$~s~ appliquée."):format(price))
+
+        -- Optionnel : push du solde après facture si l'officier a le menu ouvert
+        TriggerClientEvent('bcso:societyUpdated', src, account.money)
+    end)
+end)
 
 
 local ox_inventory = exports.ox_inventory
@@ -485,8 +541,8 @@ end
 -- =======================
 
 -- Recruter (grade 0)
-RegisterServerEvent('tanjiro:recruterpoli')
-AddEventHandler('tanjiro:recruterpoli', function(target)
+RegisterServerEvent('bcso:recruterpoli')
+AddEventHandler('bcso:recruterpoli', function(target)
     local src = source
     local sourceXPlayer = ESX.GetPlayerFromId(src)
     if not sourceXPlayer then return end
@@ -505,8 +561,8 @@ AddEventHandler('tanjiro:recruterpoli', function(target)
 end)
 
 -- Licencier
-RegisterServerEvent('tanjiro:virerpoli')
-AddEventHandler('tanjiro:virerpoli', function(target)
+RegisterServerEvent('bcso:virerpoli')
+AddEventHandler('bcso:virerpoli', function(target)
     local src = source
     local sourceXPlayer = ESX.GetPlayerFromId(src)
     local targetXPlayer = ESX.GetPlayerFromId(target)
@@ -523,8 +579,8 @@ AddEventHandler('tanjiro:virerpoli', function(target)
 end)
 
 -- Novice (grade 1)
-RegisterServerEvent('tanjiro:novicepoli')
-AddEventHandler('tanjiro:novicepoli', function(target)
+RegisterServerEvent('bcso:novicepoli')
+AddEventHandler('bcso:novicepoli', function(target)
     local src = source
     local sourceXPlayer = ESX.GetPlayerFromId(src)
     if not sourceXPlayer then return end
@@ -542,8 +598,8 @@ AddEventHandler('tanjiro:novicepoli', function(target)
 end)
 
 -- Expérimenté (grade 2)
-RegisterServerEvent('tanjiro:experimentepoli')
-AddEventHandler('tanjiro:experimentepoli', function(target)
+RegisterServerEvent('bcso:experimentepoli')
+AddEventHandler('bcso:experimentepoli', function(target)
     local src = source
     local sourceXPlayer = ESX.GetPlayerFromId(src)
     if not sourceXPlayer then return end
@@ -561,8 +617,8 @@ AddEventHandler('tanjiro:experimentepoli', function(target)
 end)
 
 -- Chef (grade 3)
-RegisterServerEvent('tanjiro:chiefpoli')
-AddEventHandler('tanjiro:chiefpoli', function(target)
+RegisterServerEvent('bcso:chiefpoli')
+AddEventHandler('bcso:chiefpoli', function(target)
     local src = source
     local sourceXPlayer = ESX.GetPlayerFromId(src)
     if not sourceXPlayer then return end
@@ -730,46 +786,7 @@ AddEventHandler(ConfigBcso.RemoveItemEvent, function()
 end)
 
 
--- SV/API : appliquer une amende et créditer la société bcso
-RegisterNetEvent('bcso:SendFacture', function(target, price)
-    local src = source
-    local officer = ESX.GetPlayerFromId(src)
 
-    -- ✅ Sécurité : seul le job bcso peut facturer
-    if not officer or not officer.job or officer.job.name ~= 'bcso' then
-        TriggerEvent("AC:Violations", 24, ("Event: bcso:SendFacture job: %s"):format(officer and officer.job and officer.job.name or 'nil'), src)
-        return
-    end
-
-    -- ✅ Sanity checks sur les paramètres
-    price = tonumber(price) or 0
-    if price <= 0 then
-        TriggerClientEvent("esx:showNotification", src, "Montant invalide.")
-        return
-    end
-
-    local targetX = ESX.GetPlayerFromId(tonumber(target) or -1)
-    if not targetX then
-        TriggerClientEvent("esx:showNotification", src, "Cible introuvable / déconnectée.")
-        return
-    end
-
-    -- ✅ Créditer la société, débiter le joueur
-    TriggerEvent('esx_addonaccount:getSharedAccount', 'society_bcso', function(account)
-        if not account then
-            TriggerClientEvent("esx:showNotification", src, "Compte société introuvable (society_bcso).")
-            return
-        end
-
-        -- (Option : vérifier solde banque et fallback cash si nécessaire)
-        targetX.removeAccountMoney('money', price)
-        account.addMoney(price)
-
-        -- 🔔 Notifs (adapte au format de ta base ESX si besoin)
-        TriggerClientEvent("esx:showNotification", targetX.source, ("Votre compte en banque a été débité de ~r~%s$~s~."):format(price))
-        TriggerClientEvent("esx:showNotification", src, ("Amende de ~r~%s$~s~ appliquée."):format(price))
-    end)
-end)
 
 local function GetActualTime() 
 	date = os.date('*t')

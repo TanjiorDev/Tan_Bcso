@@ -2,6 +2,15 @@
 local zUI = exports["zUI-v2"]:getObject()
 local ESX = exports["es_extended"]:getSharedObject()
 
+-- Met à jour les données du joueur lorsqu'il se connecte
+RegisterNetEvent('esx:playerLoaded', function(playerData)
+    ESX.PlayerData = playerData
+end)
+
+RegisterNetEvent("esx:setJob", function(job)
+    ESX.PlayerData = ESX.PlayerData or {}
+    ESX.PlayerData.job = job
+end)
 
 -- Helper : vérifier le job
 local function hasJob(requiredJob, minGrade)
@@ -142,7 +151,7 @@ zUI.SetItems(mainMenu, function()
         zUI.Button("Intéraction véhicule", nil, { RightLabel = "➤" }, function() end, vehicule)
         zUI.Button("Appels LSPD", nil, { RightLabel = "➤" }, function() end, Appels)
         zUI.Button("Demande de renfort", nil, { RightLabel = "➤" }, function() end, menuRenforts)
-        zUI.Button("Menu Objets", nil, { RightLabel = "➤" }, function() end, Objets)
+        zUI.Button("Menu Objets", nil, { RightLabel = "➤" }, function() end, menuObjets)
     end
 end)
 
