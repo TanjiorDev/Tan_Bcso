@@ -34,7 +34,7 @@ CreateThread(function()
                 end
 
                 if IsControlJustReleased(0, 38) then -- E
-                    OpenRdvMenu()
+                    OpenRdvMenubcso()
                 end
             else
                 if textShown then
@@ -62,7 +62,7 @@ AddEventHandler('onResourceStop', function(resName)
 end)
 
 -- Fonction d’ouverture du menu
-function OpenRdvMenu()
+function OpenRdvMenubcso()
     local input = lib.inputDialog("📅 Rendez-vous bcso", {
         { type = "input", label = "Motif du rendez-vous", placeholder = "Plainte, audition, etc." },
         { type = "input", label = "Heure souhaitée", placeholder = "Exemple : 18h30" }
