@@ -1,4 +1,13 @@
-Bonsoir/Bonjour à tous,
-J’ai pris ma décision : mes scripts seront gratuits et open source. Je vous demande simplement de respecter mon travail, car ça me prend du temps et je le fais par passion et plaisir.
+📢 Message important
 
-Par contre, si quelqu’un s’amuse à revendre mon travail dans mon dos, alors mes scripts seront mis sur Tebex, toujours gratuits, mais en “lock” (bloqués) pour les mises à jour
+Bonsoir/Bonjour à tous 👋
+
+J’ai pris ma décision :
+✅ Mes scripts seront gratuits et open source.
+🙏 Je vous demande simplement de respecter mon travail, car cela me prend du temps et je le fais par passion et plaisir.
+
+⚠️ Cependant :
+Si quelqu’un revend mes scripts dans mon dos, alors ils seront déplacés sur Tebex.
+Ils resteront gratuits, mais bloqués (lock) pour les futures mises à jour.
+
+Merci de respecter mon travail 🙏
