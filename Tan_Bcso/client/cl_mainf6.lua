@@ -155,40 +155,38 @@ zUI.SetItems(mainMenu, function()
     end
 end)
 
+-- Interaction "Fouiller" via ox_target
 exports.ox_target:addGlobalPlayer({
-    {
-        name = 'bcso_search_player',                 -- ⚠️ nom unique
-        label = 'Fouiller',
-        icon = 'fa-solid fa-magnifying-glass',
-        distance = 2.0,
-        canInteract = function(entity, distance, coords, name)
-            if not hasJob('bcso', 0) then return false end
-            return canUseOnPlayer(entity, distance, 2.0)
-        end,
-        onSelect = function(data)
-            local ped = data.entity
-            local player = NetworkGetPlayerIndexFromPed(ped)
-            if not player or player == -1 then
-                ESX.ShowNotification("~r~Aucune personne valide.")
-                return
+        {
+            name = OPTION_NAME,                         -- ⚠️ unique
+            label = '🔍 Fouiller',
+            icon = 'fa-solid fa-magnifying-glass',
+            distance = 2.0,
+            groups = { police = 0 },                   -- ← auto-filtrage côté ox_target pour ESX
+            canInteract = function(entity, distance)
+                if not entity or entity == PlayerPedId() then return false end
+                return (distance or 9e9) <= 2.0
+            end,
+            onSelect = function(data)
+                local ped = data.entity
+                local player = NetworkGetPlayerIndexFromPed(ped)
+                if not player or player == -1 then
+                    ESX.ShowNotification("~r~Aucune personne valide.")
+                    return
+                end
+                local serverId = GetPlayerServerId(player)
+                ExecuteCommand('me fouille l’individu')
+                exports.ox_inventory:openInventory('player', serverId)
             end
+        },
 
-            local serverId = GetPlayerServerId(player)
-            -- Emote / chat (adapte la commande si nécessaire)
-            ExecuteCommand('me fouille l’individu')
-
-            -- Ouvre l'inventaire cible via ox_inventory
-            exports.ox_inventory:openInventory('player', serverId)
-            ESX.ShowNotification("~g~Fouille en cours...")
-        end
-    },
     {
-        name = 'bcso_toggle_cuffs',                  -- ⚠️ nom unique
+        name = 'police_toggle_cuffs',                  -- ⚠️ nom unique
         label = 'Menotter / Démenotter',
         icon = 'fa-solid fa-handcuffs',                -- nécessite FontAwesome 6 ; sinon mets une autre icône
         distance = 2.0,
         canInteract = function(entity, distance, coords, name)
-            if not hasJob('bcso', 0) then return false end
+            if not hasJob('police', 0) then return false end
             return canUseOnPlayer(entity, distance, 2.0)
         end,
         onSelect = function(data)
@@ -200,7 +198,7 @@ exports.ox_target:addGlobalPlayer({
             end
 
             local serverId = GetPlayerServerId(player)
-            TriggerServerEvent('Bcsojob:handcuff', serverId)
+            TriggerServerEvent('Policejob:handcuff', serverId)
 
             -- Petit délai visuel comme dans ton code
             CreateThread(function()
