@@ -62,12 +62,6 @@ function loadDict(dict)
     while not HasAnimDictLoaded(dict) do Wait(0) RequestAnimDict(dict) end
 end
 
-canInteract = function(entity, distance)
-    if entity == PlayerPedId() then return false end
-    if distance > 2.0 then return false end
-    return ESX.PlayerData and ESX.PlayerData.job and ESX.PlayerData.job.name == "bcso"
-end
-
 -- 📋 MENU PRINCIPAL
 local mainMenu = zUI.CreateMenu(
     "MENU BCSO",                -- Titre
@@ -155,7 +149,7 @@ zUI.SetItems(mainMenu, function()
     if enService then
         zUI.Button("Intéraction citoyen", nil, { RightLabel = "➤" }, function() end, citoyen)
         zUI.Button("Intéraction véhicule", nil, { RightLabel = "➤" }, function() end, vehicule)
-        zUI.Button("Appels LSPD", nil, { RightLabel = "➤" }, function() end, Appels)
+        zUI.Button("Appels BCSO", nil, { RightLabel = "➤" }, function() end, Appels)
         zUI.Button("Demande de renfort", nil, { RightLabel = "➤" }, function() end, menuRenforts)
         zUI.Button("Menu Objets", nil, { RightLabel = "➤" }, function() end, menuObjets)
     end

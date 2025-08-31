@@ -24,8 +24,6 @@ CREATE TABLE `criminal_records_content_bcso` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
-
-
 ALTER TABLE `criminal_records_bcso`
   ADD PRIMARY KEY (`name`);
 COMMIT;
