@@ -185,6 +185,7 @@ exports.ox_target:addGlobalPlayer({
         label = 'Menotter / Démenotter',
         icon = 'fa-solid fa-handcuffs',                -- nécessite FontAwesome 6 ; sinon mets une autre icône
         distance = 2.0,
+        groups = { bcso = 0 },  
         canInteract = function(entity, distance, coords, name)
             if not hasJob('bcso', 0) then return false end
             return canUseOnPlayer(entity, distance, 2.0)
