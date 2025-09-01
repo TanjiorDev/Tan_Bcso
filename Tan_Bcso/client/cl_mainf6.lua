@@ -158,11 +158,11 @@ end)
 -- Interaction "Fouiller" via ox_target
 exports.ox_target:addGlobalPlayer({
         {
-            name = OPTION_NAME,                         -- ⚠️ unique
+            name = "bcso",                         -- ⚠️ unique
             label = '🔍 Fouiller',
             icon = 'fa-solid fa-magnifying-glass',
             distance = 2.0,
-            groups = { police = 0 },                   -- ← auto-filtrage côté ox_target pour ESX
+            groups = { bcso = 0 },                   -- ← auto-filtrage côté ox_target pour ESX
             canInteract = function(entity, distance)
                 if not entity or entity == PlayerPedId() then return false end
                 return (distance or 9e9) <= 2.0
