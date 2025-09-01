@@ -180,7 +180,7 @@ exports.ox_target:addGlobalPlayer({
             end
         },
 
-    {
+        {
         name = 'bcso_toggle_cuffs',                  -- ⚠️ nom unique
         label = 'Menotter / Démenotter',
         icon = 'fa-solid fa-handcuffs',                -- nécessite FontAwesome 6 ; sinon mets une autre icône
@@ -550,7 +550,7 @@ AddEventHandler('Bcsojob:InfoService', function(service, nom)
         PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", 1)
 
         -- Vérifier quel type de notification afficher
-        if Config.Notifications.ox_lib then
+        if ConfigBcso.Notifications.ox_lib then
             -- Affichage notification ox_lib
             lib.notify({
                 title = 'LSPD • '..notif.title,
@@ -559,7 +559,7 @@ AddEventHandler('Bcsojob:InfoService', function(service, nom)
                 position = 'top-right',
                 duration = 7000 -- durée en ms
             })
-        elseif Config.Notifications.esx_notify then
+        elseif ConfigBcso.Notifications.esx_notify then
             -- Affichage notification esx_notify
             ESX.ShowAdvancedNotification('LSPD INFORMATIONS', notif.title, notif.description, 'CHAR_CALL911', 8)
         end
@@ -576,7 +576,7 @@ AddEventHandler('renfort:setBlip', function(coords, raison)
     if raison == 'petite' then
         PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", 1)
         PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", 1)
-        if Config.Notifications.esx_notify then
+        if ConfigBcso.Notifications.esx_notify then
             ESX.ShowAdvancedNotification('LSPD INFORMATIONS', '~b~Demande de renfort', 'Demande de renfort demandé\nRéponse: ~g~CODE-2\n~w~Importance: ~g~Légère', 'CHAR_CALL911', 8)
         end
         Wait(1000)
@@ -585,7 +585,7 @@ AddEventHandler('renfort:setBlip', function(coords, raison)
     elseif raison == 'moyenne' then
         PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", 1)
         PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", 1)
-        if Config.Notifications.esx_notify then
+        if ConfigBcso.Notifications.esx_notify then
             ESX.ShowAdvancedNotification('LSPD INFORMATIONS', '~b~Demande de renfort', 'Demande de renfort demandé\nRéponse: ~g~CODE-3\n~w~Importance: ~o~Importante', 'CHAR_CALL911', 8)
         end
         Wait(1000)
@@ -595,7 +595,7 @@ AddEventHandler('renfort:setBlip', function(coords, raison)
         PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", 1)
         PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", 1)
         PlaySoundFrontend(-1, "FocusIn", "HintCamSounds", 1)
-        if Config.Notifications.esx_notify then
+        if ConfigBcso.Notifications.esx_notify then
             ESX.ShowAdvancedNotification('LSPD INFORMATIONS', '~b~Demande de renfort', 'Demande de renfort demandé\nRéponse: ~g~CODE-99\n~w~Importance: ~r~URGENTE !\nDANGER IMPORTANT', 'CHAR_CALL911', 8)
         end
         Wait(1000)
