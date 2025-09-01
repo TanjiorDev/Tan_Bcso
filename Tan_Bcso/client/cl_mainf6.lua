@@ -2,6 +2,24 @@
 local zUI = exports["zUI-v2"]:getObject()
 local ESX = exports["es_extended"]:getSharedObject()
 
+local function fmtMoney(n)
+    n = tonumber(n) or 0
+    -- Si ESX fournit déjà un groupage, on l'utilise
+    if ESX and ESX.Math and ESX.Math.GroupDigits then
+        return ESX.Math.GroupDigits(n)
+    end
+    -- Fallback simple (espaces 000)
+    local sign = n < 0 and "-" or ""
+    n = math.abs(math.floor(n + 0.0))
+    local s = tostring(n)
+    while true do
+        local s2, k = s:gsub("^(%d+)(%d%d%d)", "%1 %2")
+        s = s2
+        if k == 0 then break end
+    end
+    return sign .. s
+end
+
 -- Met à jour les données du joueur lorsqu'il se connecte
 RegisterNetEvent('esx:playerLoaded', function(playerData)
     ESX.PlayerData = playerData
@@ -20,13 +38,7 @@ local function hasJob(requiredJob, minGrade)
     return grade >= (minGrade or 0)
 end
 
--- (Optionnel) vérifier que la cible est vivante et proche
-local function canUseOnPlayer(entity, distance, maxDist)
-    if not entity or not DoesEntityExist(entity) then return false end
-    if IsPedAPlayer(entity) ~= 1 then return false end
-    if IsPedDeadOrDying(entity, true) then return false end
-    return (distance or 0.0) <= (maxDist or 2.0)
-end
+
 
 -- 🔁 Fonctions utilitaires
 local function getClosestPlayer(maxDistance)
@@ -127,6 +139,15 @@ local menuSuppression = zUI.CreateSubMenu(
     "menuSuppression",
     ConfigBcso.themes
 )
+
+local amendeMenu = zUI.CreateSubMenu(
+    mainMenu,
+    "Bcso",                -- Titre
+    "",
+    "Choisir une infraction",
+    ConfigBcso.themes
+)
+
 local vehicleInfos = nil
 -- S'assurer que la variable est bien booléenne dès le départ
     local enService = false
@@ -152,6 +173,64 @@ zUI.SetItems(mainMenu, function()
         zUI.Button("Appels BCSO", nil, { RightLabel = "➤" }, function() end, Appels)
         zUI.Button("Demande de renfort", nil, { RightLabel = "➤" }, function() end, menuRenforts)
         zUI.Button("Menu Objets", nil, { RightLabel = "➤" }, function() end, menuObjets)
+        zUI.Button("Menu amend", nil, { RightLabel = "➤" }, function() end, amendeMenu)
+    end
+end)
+
+zUI.SetItems(amendeMenu, function()
+    if not ConfigBcso or not ConfigBcso.amende or next(ConfigBcso.amende) == nil then
+        zUI.Separator("~r~Aucune amende configurée")
+        return
+    end
+
+    -- Parcourt des catégories d'amendes : ConfigBcso.amende = { ["Circulation"] = { {label="", price=0}, ... }, ... }
+    for categorie, items in pairs(ConfigBcso.amende) do
+        zUI.Separator(("~b~%s"):format(categorie))
+
+        for _, i in pairs(items) do
+            local label = i.label or "Amende"
+            local price = tonumber(i.price) or 0
+
+            zUI.Button(label, nil, { RightLabel = ("~g~%s$"):format(fmtMoney(price)) }, function(onSelected)
+                if not onSelected then return end
+
+                local player, distance = ESX.Game.GetClosestPlayer()
+                if player ~= -1 and distance and distance <= 3.0 then
+                    local targetSid = GetPlayerServerId(player)
+
+                    -- Confirmation (ox_lib si présent, sinon envoi direct)
+                    local choice = (lib and lib.alertDialog) and lib.alertDialog({
+                        header   = 'Envoyer la facture ?',
+                        content  = ('%s\nMontant : $%s'):format(label, fmtMoney(price)),
+                        centered = true,
+                        cancel   = true,
+                        labels   = { confirm = 'Envoyer', cancel = 'Annuler' }
+                    }) or 'confirm'
+
+                    if choice == 'confirm' then
+                        -- Si tu veux aussi le libellé côté serveur, ajoute-le ici
+                        -- TriggerServerEvent("bcso:SendFacture", targetSid, price, label)
+                        TriggerServerEvent("bcso:SendFacture", targetSid, price)
+
+                        if ESX.ShowNotification then
+                            ESX.ShowNotification(
+                                ('Facture envoyée à ~y~%s~s~ : ~g~$%s'):format(GetPlayerName(player), fmtMoney(price))
+                            )
+                        else
+                            TriggerEvent("esx:showNotification", "Facture envoyée.")
+                        end
+
+                        zUI.CloseAll()
+                    end
+                else
+                    if ESX.ShowNotification then
+                        ESX.ShowNotification("Aucun joueur proche")
+                    else
+                        TriggerEvent("esx:showNotification", "Aucun joueur proche", 3000, "warning")
+                    end
+                end
+            end)
+        end
     end
 end)
 
