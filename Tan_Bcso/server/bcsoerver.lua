@@ -5,7 +5,21 @@ TriggerEvent('esx_phone:registerNumber', 'bcso', 'alerte bcso', true, true)
 TriggerEvent('esx_society:registerSociety', 'bcso', 'bcso', 'society_bcso', 'society_bcso', 'society_bcso', {type = 'public'})
 
 
-local ESX = exports["es_extended"]:getSharedObject()
+RegisterServerEvent('ox_inventory:openInventory')
+AddEventHandler('ox_inventory:openInventory', function(type, targetId)
+    local src = source
+    local target = tonumber(targetId)
+    if not target then return end
+
+    -- Vérifie que le joueur source est BCSO et en service
+    local xPlayer = ESX.GetPlayerFromId(src)
+    if not xPlayer then return end
+    if xPlayer.job.name ~= 'bcso' or not xPlayer.job.onDuty then return end
+
+    -- Ouvre l'inventaire du joueur ciblé pour le joueur source
+    TriggerClientEvent('ox_inventory:openInventory', src, type, target)
+end)
+
 
 -- Event : réception d’une demande de RDV
 RegisterNetEvent("rdv:sendToBcso")
