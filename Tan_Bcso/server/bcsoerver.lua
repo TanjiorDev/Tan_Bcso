@@ -5,6 +5,8 @@ TriggerEvent('esx_phone:registerNumber', 'bcso', 'alerte bcso', true, true)
 TriggerEvent('esx_society:registerSociety', 'bcso', 'bcso', 'society_bcso', 'society_bcso', 'society_bcso', {type = 'public'})
 
 
+-- server.lua
+
 RegisterServerEvent('ox_inventory:openInventory')
 AddEventHandler('ox_inventory:openInventory', function(type, targetId)
     local src = source
@@ -345,8 +347,8 @@ AddEventHandler("bcso:AnnounceService", function(status)
     end
 end)
 
-RegisterServerEvent('renfort')
-AddEventHandler('renfort', function(coords, raison)
+RegisterServerEvent('renfortbcso')
+AddEventHandler('renfortbcso', function(coords, raison)
     local src = source
     local xPlayer = ESX.GetPlayerFromId(src)
     local xPlayers = ESX.GetPlayers()
@@ -359,7 +361,7 @@ AddEventHandler('renfort', function(coords, raison)
 
         if thePlayer and thePlayer.job.name == 'bcso' then
             -- Blip sur la map
-            TriggerClientEvent('renfort:setBlip', targetId, safeCoords, raison)
+            TriggerClientEvent('renfortbcso:setBlip', targetId, safeCoords, raison)
 
             -- Notification texte
             local notif = ("🚨 Demande de renfort\nUnité : %s\nType : %s\nLocalisation transmise à l'unité."):format(
