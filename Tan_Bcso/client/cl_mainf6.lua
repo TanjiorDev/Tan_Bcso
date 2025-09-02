@@ -652,47 +652,67 @@ AddEventHandler('Bcsojob:InfoService', function(service, nom)
 end)
 
 
+function BcsoNotify(title, message, notifType)
+    if ConfigBcso and ConfigBcso.Notifications then
+        if ConfigBcso.Notifications.ox_lib and lib and lib.notify then
+            lib.notify({
+                title = title or "Bcso",
+                description = message,
+                type = notifType or "inform",
+                position = 'top-right',
+                duration = 7000
+            })
+        elseif ConfigBcso.Notifications.vms_notifyv2 then
+            TriggerEvent('vms_notifyv2:Notify', message, notifType or "info")
+        elseif ConfigBcso.Notifications.esx_notify then
+            ESX.ShowAdvancedNotification('Bcso INFORMATIONS', title or "Notification", message, 'CHAR_CALL911', 8)
+        else
+            ESX.ShowNotification(message)
+        end
+    else
+        ESX.ShowNotification(message)
+    end
+end
+
 RegisterNetEvent('renfortbcso:setBlip')
 AddEventHandler('renfortbcso:setBlip', function(coords, raison)
     local color = 0
 
     if raison == 'petitebcso' then
-        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", true)
-        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", true)
+        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", 1)
+        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", 1)
+        BcsoNotify('~b~Demande de renfort', 'Demande de renfort demandé\nRéponse: ~g~CODE-2\n~w~Importance: ~g~Légère', 'inform')
         Wait(1000)
-        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", true)
+        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", 1)
         color = 2
-
     elseif raison == 'moyennebcso' then
-        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", true)
-        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", true)
+        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", 1)
+        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", 1)
+        BcsoNotify('~b~Demande de renfort', 'Demande de renfort demandé\nRéponse: ~g~CODE-3\n~w~Importance: ~o~Importante', 'inform')
         Wait(1000)
-        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", true)
+        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", 1)
         color = 47
-
     elseif raison == 'grossebcso' then
-        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", true)
-        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", true)
-        PlaySoundFrontend(-1, "FocusIn", "HintCamSounds", true)
+        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", 1)
+        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", 1)
+        PlaySoundFrontend(-1, "FocusIn", "HintCamSounds", 1)
+        BcsoNotify('~b~Demande de renfort', 'Demande de renfort demandé\nRéponse: ~g~CODE-99\n~w~Importance: ~r~URGENTE !\nDANGER IMPORTANT', 'error')
         Wait(1000)
-        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", true)
-        PlaySoundFrontend(-1, "FocusOut", "HintCamSounds", true)
+        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", 1)
+        PlaySoundFrontend(-1, "FocusOut", "HintCamSounds", 1)
         color = 1
     end
 
-    -- Correction ici :
-    local blipId = AddBlipForCoord(coords.x, coords.y, coords.z)
+    local blipId = AddBlipForCoord(coords)
     SetBlipSprite(blipId, 161)
     SetBlipScale(blipId, 1.2)
     SetBlipColour(blipId, color)
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString('Demande renfort')
     EndTextCommandSetBlipName(blipId)
-
     Wait(80 * 1000)
     RemoveBlip(blipId)
 end)
-
 
 
 function SpawnObj(obj)
