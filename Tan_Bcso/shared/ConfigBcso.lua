@@ -597,7 +597,7 @@ ConfigBcso.GarageBCSO = {
         size = vector3(3.0, 3.0, 3.0),
         garageMenuBCSO = {
             name = "bcso_garage",
-            icon = "car",
+            icon = "fa-solid fa-car",
             label = "Ouvrir le Garage bcso",
             distance = 2.0
         }
@@ -647,3 +647,4 @@ ConfigBcso.NPCs = {
     },
 
 }
+
