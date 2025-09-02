@@ -363,16 +363,15 @@ AddEventHandler('renfortbcso', function(coords, raison)
             -- Blip sur la map
             TriggerClientEvent('renfortbcso:setBlip', targetId, safeCoords, raison)
 
-            -- Notification texte
+            -- Notification centralisée
             local notif = ("🚨 Demande de renfort\nUnité : %s\nType : %s\nLocalisation transmise à l'unité."):format(
                 xPlayer.getName() or "Inconnu",
                 raison
             )
-            TriggerClientEvent('esx:showNotification', targetId, notif)
+            NotifyBcso(targetId, notif, "info")
         end
     end
 end)
-
 RegisterServerEvent('Bcsojob:PriseEtFinservice')
 AddEventHandler('Bcsojob:PriseEtFinservice', function(PriseOuFin)
     local src = source
