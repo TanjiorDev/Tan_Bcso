@@ -6,7 +6,11 @@ ConfigBcso.CommandeMenu = "bcsomenu"  -- Commande pour ouvrir le menu
 ConfigBcso.ToucheMenu = "F6"  -- Touche d'accès rapide
 ConfigBcso.themes = "default"
 
-
+ConfigBcso.Notifications = {
+    ox_lib = false,         -- true pour utiliser ox_lib
+    vms_notifyv2 = false,   -- true pour utiliser vms_notifyv2
+    esx_notify = true       -- true pour utiliser ESX notifications natives
+}
 
 -- 📌 Webhook Discord
 ConfigBcso.WebhookURL = ""
@@ -626,7 +630,6 @@ ConfigBcso.AuthorizedBcsoVehicles = {
     }
 }
 
-
 --############################
 --########### ped #########
 --############################
@@ -647,4 +650,3 @@ ConfigBcso.NPCs = {
     },
 
 }
-
