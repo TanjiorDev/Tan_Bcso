@@ -490,28 +490,22 @@ end)
 zUI.SetItems(menuRenforts, function()
     zUI.Button("🚓 Petite demande", nil, { RightLabel = "→" }, function(onSelected)
         if onSelected then
-            local raison = 'petite'
-            local playerPed = PlayerPedId()
-            local coords = GetEntityCoords(playerPed)
-            TriggerServerEvent('renfort', coords, raison)
+            local coords = GetEntityCoords(PlayerPedId())
+            TriggerServerEvent('renfortbcso', coords, 'petitebcso')
         end
     end)
 
     zUI.Button("🚔 Moyenne demande", nil, { RightLabel = "→" }, function(onSelected)
         if onSelected then
-            local raison = 'moyenne'
-            local playerPed = PlayerPedId()
-            local coords = GetEntityCoords(playerPed)
-            TriggerServerEvent('renfort', coords, raison)
+            local coords = GetEntityCoords(PlayerPedId())
+            TriggerServerEvent('renfortbcso', coords, 'moyennebcso')
         end
     end)
 
     zUI.Button("🚨 Grosse demande", nil, { RightLabel = "→" }, function(onSelected)
         if onSelected then
-            local raison = 'grosse'
-            local playerPed = PlayerPedId()
-            local coords = GetEntityCoords(playerPed)
-            TriggerServerEvent('renfort', coords, raison)
+            local coords = GetEntityCoords(PlayerPedId())
+            TriggerServerEvent('renfortbcso', coords, 'grossebcso')
         end
     end)
 end)
@@ -657,48 +651,44 @@ AddEventHandler('Bcsojob:InfoService', function(service, nom)
     end
 end)
 
-RegisterNetEvent('renfort:setBlip')
-AddEventHandler('renfort:setBlip', function(coords, raison)
+
+RegisterNetEvent('renfortbcso:setBlip')
+AddEventHandler('renfortbcso:setBlip', function(coords, raison)
     local color = 0
 
-    if raison == 'petite' then
-        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", 1)
-        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", 1)
-        if ConfigBcso.Notifications.esx_notify then
-            ESX.ShowAdvancedNotification('LSPD INFORMATIONS', '~b~Demande de renfort', 'Demande de renfort demandé\nRéponse: ~g~CODE-2\n~w~Importance: ~g~Légère', 'CHAR_CALL911', 8)
-        end
+    if raison == 'petitebcso' then
+        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", true)
+        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", true)
         Wait(1000)
-        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", 1)
+        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", true)
         color = 2
-    elseif raison == 'moyenne' then
-        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", 1)
-        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", 1)
-        if ConfigBcso.Notifications.esx_notify then
-            ESX.ShowAdvancedNotification('LSPD INFORMATIONS', '~b~Demande de renfort', 'Demande de renfort demandé\nRéponse: ~g~CODE-3\n~w~Importance: ~o~Importante', 'CHAR_CALL911', 8)
-        end
+
+    elseif raison == 'moyennebcso' then
+        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", true)
+        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", true)
         Wait(1000)
-        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", 1)
+        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", true)
         color = 47
-    elseif raison == 'grosse' then
-        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", 1)
-        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", 1)
-        PlaySoundFrontend(-1, "FocusIn", "HintCamSounds", 1)
-        if ConfigBcso.Notifications.esx_notify then
-            ESX.ShowAdvancedNotification('LSPD INFORMATIONS', '~b~Demande de renfort', 'Demande de renfort demandé\nRéponse: ~g~CODE-99\n~w~Importance: ~r~URGENTE !\nDANGER IMPORTANT', 'CHAR_CALL911', 8)
-        end
+
+    elseif raison == 'grossebcso' then
+        PlaySoundFrontend(-1, "Start_Squelch", "CB_RADIO_SFX", true)
+        PlaySoundFrontend(-1, "OOB_Start", "GTAO_FM_Events_Soundset", true)
+        PlaySoundFrontend(-1, "FocusIn", "HintCamSounds", true)
         Wait(1000)
-        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", 1)
-        PlaySoundFrontend(-1, "FocusOut", "HintCamSounds", 1)
+        PlaySoundFrontend(-1, "End_Squelch", "CB_RADIO_SFX", true)
+        PlaySoundFrontend(-1, "FocusOut", "HintCamSounds", true)
         color = 1
     end
 
-    local blipId = AddBlipForCoord(coords)
+    -- Correction ici :
+    local blipId = AddBlipForCoord(coords.x, coords.y, coords.z)
     SetBlipSprite(blipId, 161)
     SetBlipScale(blipId, 1.2)
     SetBlipColour(blipId, color)
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString('Demande renfort')
     EndTextCommandSetBlipName(blipId)
+
     Wait(80 * 1000)
     RemoveBlip(blipId)
 end)
